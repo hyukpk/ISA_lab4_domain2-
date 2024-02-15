@@ -1,22 +1,22 @@
 const http = require('http');
 const url = require('url');
 
-const GET = "GET";
-const POST = "POST";
-const endPointRoot = "https://isalab4.netlify.app/api/definitions";
-const storage = {}; // Consider replacing with persistent storage for production use
+let requestCount = 0;
+let storage = {}; // Consider replacing with persistent storage for production use
 
 const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+
     // Basic CORS configuration for all responses
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST");
+    res.setHeader("Access-Control-Allow-Methods", "*");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
     // Placeholder for implementing rate limiting
     // RateLimiter(req, res);
 
     if (req.method === 'OPTIONS') {
-        res.writeHead(204);
+        res.writeHead(200);
         res.end();
         return;
     }
@@ -26,15 +26,15 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify(body));
     }
 
-    if (req.method === GET) {
-        const q = url.parse(req.url, true);
-        const word = q.query.word;
+    if (req.method === "GET" && parsedUrl.pathname === '/api/definitions') {
+        
+        const word = parsedUrl.query.word;
         if (word && storage[word]) {
             sendResponse(res, 200, "application/json", {word: word, definition: storage[word]});
         } else {
             sendResponse(res, 404, "application/json", {error: "Word not found in dictionary"});
         }
-    } else if (req.method === POST && req.url === endPointRoot) {
+    } else if (req.method === "POST" && parsedUrl.pathname === '/api/definitions') {
         let body = "";
         req.on('data', chunk => {
             body += chunk.toString(); // Convert Buffer to string
@@ -55,9 +55,10 @@ const server = http.createServer((req, res) => {
         });
     } else {
         // Handle unsupported methods or endpoints
+        console.log(req.method);
         sendResponse(res, 405, "application/json", {error: "Method Not Allowed or Bad Request"});
     }
 });
 
-const port = 8888;
+const port = process.env.port || 8888;
 server.listen(port, () => console.log(`Server listening on port ${port}`));
