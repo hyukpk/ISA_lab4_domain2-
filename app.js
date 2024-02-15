@@ -28,7 +28,7 @@ const server = http.createServer((req, res) => {
 
     if (req.method === "GET" && parsedUrl.pathname === '/api/definitions') {
         
-        const word = parsedUrl.query.word;
+        const word = parsedUrl.query;
         if (word && storage[word]) {
             sendResponse(res, 200, "application/json", {word: word, definition: storage[word]});
         } else {
