@@ -3,7 +3,7 @@ const url = require('url');
 
 const GET = "GET";
 const POST = "POST";
-const endPointRoot = "https://isa-lab4-domain1.vercel.app/store.html/api/definitions";
+const endPointRoot = "https://isalab4.netlify.app/";
 const storage = {}; //using object for storage
 http.createServer(function (req, res) {
     res.writeHead(204, {
