@@ -3,7 +3,7 @@ const url = require('url');
 
 const GET = "GET";
 const POST = "POST";
-const endPointRoot = "/api/definitions";
+const endPointRoot = "https://isalab4.netlify.app/api/definitions";
 const storage = {}; // Consider replacing with persistent storage for production use
 
 const server = http.createServer((req, res) => {
