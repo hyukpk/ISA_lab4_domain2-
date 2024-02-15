@@ -3,7 +3,7 @@ const url = require('url');
 
 const GET = "GET";
 const POST = "POST";
-const endPointRoot = "/api/definitions";
+const endPointRoot = "https://isa-lab4-domain1.vercel.app/store.html/api/definitions";
 const storage = {}; //using object for storage
 http.createServer(function (req, res) {
     res.writeHead(204, {
@@ -29,7 +29,7 @@ http.createServer(function (req, res) {
         return;
     }
 
-    if (req.method === POST && req.url === endPointRoot + '') { // is user is trying to add a definition to a word, find if word already exists, if it does, append the additonal message to it( or replace), and then give a confirming response
+    if (req.method === POST && req.url === endPointRoot) { // is user is trying to add a definition to a word, find if word already exists, if it does, append the additonal message to it( or replace), and then give a confirming response
         let body = "";
         req.on('data', function (chunk) {
             if (chunk != null) {
