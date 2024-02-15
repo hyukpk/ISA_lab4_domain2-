@@ -28,12 +28,14 @@ const server = http.createServer((req, res) => {
 
     if (req.method === "GET" && parsedUrl.pathname === '/api/definitions') {
         
-        const word = parsedUrl.query;
-        if (word && storage[word]) {
+        const queryObject = parsedUrl.query;
+        const word = queryObject.word; // Assuming the query parameter is named 'word'
+        if (word && storage.hasOwnProperty(word)) { // Also, using hasOwnProperty for a safer check
             sendResponse(res, 200, "application/json", {word: word, definition: storage[word]});
         } else {
             sendResponse(res, 404, "application/json", {error: "Word not found in dictionary"});
         }
+        
     } else if (req.method === "POST" && parsedUrl.pathname === '/api/definitions') {
         let body = "";
         req.on('data', chunk => {
