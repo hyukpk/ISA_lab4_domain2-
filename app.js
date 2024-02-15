@@ -6,12 +6,16 @@ const POST = "POST";
 const endPointRoot = "https://isalab4.netlify.app/api/definitions";
 const storage = {}; //using object for storage
 http.createServer(function (req, res) {
-    res.writeHead(204, {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST",
-        "Access-Control-Allow-Headers": "Content-Type"
-    });
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     console.log(req.headers);
+
+    if (req.method == 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
 
     function sendResponse( res, statusCode, contentType, body) {
         res.writeHead(statusCode, {"Content-Type": contentType});
