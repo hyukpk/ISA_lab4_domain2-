@@ -42,7 +42,7 @@ const server = http.createServer((req, res) => {
         if (word && dictionary.hasOwnProperty(word)) { // Also, using hasOwnProperty for a safer check
             sendResponse(res, 200, "application/json", {word: word, definition: dictionary[word]});
         } else {
-            sendResponse(res, 404, "application/json", {error: wordNotFoundInDictionary(word)});
+            sendResponse(res, 404, "application/json", {error: wordNotFoundInDictionary(requestCount, word)});
         }
         
     // POST is when a user is trying to add a word and definition to the dictionary    
