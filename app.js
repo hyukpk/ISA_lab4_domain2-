@@ -1,8 +1,16 @@
 const http = require('http');
 const url = require('url');
+const {
+    wordAlreadyExists, 
+    wordNotFoundInDictionary, 
+    wordAddedToDictionary, 
+    wordAndDefinitionError, 
+    couldNotParseJson, 
+    BadRequest, 
+    ServerListening} = require('./prompts/prompts');
 
 let requestCount = 0;
-let storage = {}; // Consider replacing with persistent storage for production use
+let dictionary = {}; // Consider replacing with persistent storage for production use
 
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
@@ -26,16 +34,18 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify(body));
     }
 
+    //GET means that the user is looking for the definition to a word
     if (req.method === "GET" && parsedUrl.pathname === '/api/definitions') {
         
         const queryObject = parsedUrl.query;
         const word = queryObject.word; // Assuming the query parameter is named 'word'
-        if (word && storage.hasOwnProperty(word)) { // Also, using hasOwnProperty for a safer check
-            sendResponse(res, 200, "application/json", {word: word, definition: storage[word]});
+        if (word && dictionary.hasOwnProperty(word)) { // Also, using hasOwnProperty for a safer check
+            sendResponse(res, 200, "application/json", {word: word, definition: dictionary[word]});
         } else {
-            sendResponse(res, 404, "application/json", {error: "Word not found in dictionary"});
+            sendResponse(res, 404, "application/json", {error: wordNotFoundInDictionary(word)});
         }
         
+    // POST is when a user is trying to add a word and definition to the dictionary    
     } else if (req.method === "POST" && parsedUrl.pathname === '/api/definitions') {
         let body = "";
         req.on('data', chunk => {
@@ -46,21 +56,26 @@ const server = http.createServer((req, res) => {
                 const data = JSON.parse(body);
                 // Simple input validation
                 if (data.word && typeof data.word === 'string' && data.definition && typeof data.definition === 'string') {
-                    storage[data.word] = data.definition;
-                    sendResponse(res, 200, "application/json", {message: `${data.word} added/updated successfully`});
+                    if (data.word in dictionary) { // means the word was already defined, should throw an error
+                        sendResponse(res, 409, "application/json", {error: wordAlreadyExists});
+                        return;
+                    }
+                    dictionary[data.word] = data.definition;
+                    requestCount++;
+                    dictionary_word_count = Object.keys(dictionary).length;
+                    sendResponse(res, 200, "application/json", {message: wordAddedToDictionary(requestCount, data.word, data.definition, dictionary_word_count)});
                 } else {
-                    sendResponse(res, 400, "application/json", {error: "Invalid request. Ensure 'word' and 'definition' are properly formatted."});
+                    sendResponse(res, 400, "application/json", {error: wordAndDefinitionError});
                 }
             } catch (e) {
-                sendResponse(res, 400, "application/json", {error: "Could not parse JSON. Ensure your request is properly formatted."});
+                sendResponse(res, 400, "application/json", {error: couldNotParseJson});
             }
         });
     } else {
         // Handle unsupported methods or endpoints
-        console.log(req.method);
-        sendResponse(res, 405, "application/json", {error: "Method Not Allowed or Bad Request"});
+        sendResponse(res, 405, "application/json", {error: BadRequest});
     }
 });
 
 const port = process.env.port || 8888;
-server.listen(port, () => console.log(`Server listening on port ${port}`));
+server.listen(port, () => console.log(`ServerListening(${port})`));
