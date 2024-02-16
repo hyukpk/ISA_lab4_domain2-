@@ -57,7 +57,7 @@ const server = http.createServer((req, res) => {
                 // Simple input validation
                 if (data.word && typeof data.word === 'string' && data.definition && typeof data.definition === 'string') {
                     if (data.word in dictionary) { // means the word was already defined, should throw an error
-                        sendResponse(res, 409, "application/json", {error: wordAlreadyExists});
+                        sendResponse(res, 409, "application/json", {error: wordAlreadyExists(data.word)});
                         return;
                     }
                     dictionary[data.word] = data.definition;
